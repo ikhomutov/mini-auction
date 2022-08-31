@@ -1,0 +1,4 @@
+-r test.txt
+
+django-debug-toolbar==3.6.0
+ipdb==0.13.9

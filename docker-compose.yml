@@ -1,0 +1,25 @@
+version: '3'
+
+volumes:
+  postgres_data: {}
+
+services:
+  application:
+    build:
+      context: .
+    image: auction_app
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+    env_file:
+      - compose.env
+
+  postgres:
+    image: postgres:13-alpine
+    ports:
+      - 9999:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
