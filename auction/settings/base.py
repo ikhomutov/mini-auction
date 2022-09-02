@@ -1,4 +1,5 @@
 import environ
+from decimal import Decimal
 
 ROOT_DIR = environ.Path(__file__) - 3
 PROJECT_DIR = ROOT_DIR.path('auction')
@@ -193,3 +194,4 @@ REST_FRAMEWORK = {
 
 # APP SPECIFIC SETTINGS
 # ------------------------------------------------------------------------------
+DEFAULT_USER_BALANCE = Decimal(env.str('DEFAULT_USER_BALANCE', default='100.00'))

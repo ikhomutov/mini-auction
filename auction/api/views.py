@@ -1,20 +1,41 @@
 from django.db.transaction import atomic
-from rest_framework.generics import ListAPIView
+from django.contrib.auth.models import User
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 
 from auction.core import models
 from auction.core.constants import LotStatuses
 from . import serializers, exceptions
 
 
-class PetListView(ListAPIView):
-    serializer_class = serializers.PetDisplaySerializer
+class UserCreateView(CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.UserCreateSerializer
 
-    def get_queryset(self):
-        return models.Pet.objects.filter(owner=self.request.user.useraccount)
+
+class PetViewSet(GenericViewSet):
+    queryset = models.Pet.objects.all()
+    serializer_class = serializers.PetSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(
+            owner=request.user.useraccount
+        )
+        queryset = self.filter_queryset(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user.useraccount)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LotViewSet(GenericViewSet):

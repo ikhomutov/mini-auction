@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 import pytest
+from django.conf import settings
 from faker import Faker
 
 from auction.core import models
+from auction.core import constants
 from auction.core.constants import LotStatuses
 from tests import factories
 
@@ -17,6 +19,21 @@ def test_user_must_have_useraccount(api_client):
     assert response.status_code == 403
 
 
+def test_register_user(faker, api_client):
+    password = faker.password()
+    username = faker.user_name()
+    user_data = {
+        'username': username,
+        'password': password,
+        'password2': password
+    }
+    response = api_client.post('/api/register/', user_data)
+    assert response.status_code == 201
+    useraccount = models.UserAccount.objects.first()
+    assert useraccount.user.username == username
+    assert useraccount.balance == settings.DEFAULT_USER_BALANCE
+
+
 def test_users_see_only_their_pets(api_client, user_account):
     factories.PetFactory.create_batch(5, owner=user_account)
     factories.PetFactory.create_batch(5)
@@ -24,6 +41,19 @@ def test_users_see_only_their_pets(api_client, user_account):
     response = api_client.get('/api/pets/')
     assert response.status_code == 200
     assert len(response.json()) == 5
+
+
+def test_user_can_create_pet(faker, api_client, user_account):
+    pet_data = {
+        'name': faker.user_name(),
+        'breed': constants.Breeds.CAT
+    }
+
+    api_client.force_authenticate(user=user_account.user)
+    response = api_client.post('/api/pets/', pet_data)
+    assert response.status_code == 201
+    pets_count = models.Pet.objects.count()
+    assert pets_count == 1
 
 
 def test_user_can_see_open_lots(api_client, user_account):
