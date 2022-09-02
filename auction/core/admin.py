@@ -5,8 +5,7 @@ from . import models
 
 @admin.register(models.UserAccount)
 class UserAccountAdmin(admin.ModelAdmin):
-    list_display = ('user', 'balance')
-
+    list_display = ('user', 'balance', 'available_balance')
 
 
 @admin.register(models.Pet)

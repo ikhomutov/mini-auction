@@ -54,6 +54,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     'auction.core',
+    'auction.api',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -182,8 +183,11 @@ LOGGING = {
 # ------------------------------------------------------------------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'auction.api.permissions.HasUserAccount',
+    )
 }
 
 
