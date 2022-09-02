@@ -3,8 +3,9 @@ FROM python:3.10
 WORKDIR /app
 COPY requirements /app/requirements
 
-ENV PYTHONPATH "${PYTHONPATH}:/app"
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH="${PYTHONPATH}:/app" \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE="auction.settings.prod"
 
 RUN pip install -r requirements/prod.txt
 
